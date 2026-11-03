@@ -220,3 +220,12 @@ textarea { resize: vertical; line-height: 1.4; }
 .check { display: inline-flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; cursor: pointer; min-height: 32px; }
 .check input { width: 20px; height: 20px; accent-color: var(--primary); }
 input:disabled { background: #f5ede6; color: var(--muted); }
+
+/* ---------- Boje po vrsti eventa ---------- */
+.cat-board_game { background: #ccfbf1; color: #115e59; }
+.cat-bioskop    { background: #ede9fe; color: #5b21b6; }
+.cat-svirka     { background: #dbeafe; color: #1e40af; }
+.cat-izlazak    { background: #fef3c7; color: #92400e; }
+.cat-proslava   { background: #fce7f3; color: #9d174d; }
+.cat-ostalo     { background: #f5ede6; color: #6b4f3f; }
+.hero-cancelled .hero-badge { filter: grayscale(1); }

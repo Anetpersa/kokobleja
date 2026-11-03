@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { BottomNav } from "@/components/BottomNav";
 import { Logo } from "@/components/Logo";
-import { EVENT_SELECT, LOCATION_TBD, UPCOMING_GRACE_MS, type EventRow } from "@/lib/events";
+import { categoryLabel, EVENT_SELECT, LOCATION_TBD, UPCOMING_GRACE_MS, type EventRow } from "@/lib/events";
 import { requireMember } from "@/lib/member";
 import { dayNumber, monthShort, timeOnly, weekdayShort } from "@/lib/time";
 
@@ -77,10 +77,17 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ t
                     <span className="muted" style={{ fontSize: 14 }}>
                       {timeOnly(e.starts_at)} · {e.location ?? LOCATION_TBD}
                     </span>
-                    {e.max_spots && !cancelled && (
-                      <span className="small muted" style={{ fontWeight: 600 }}>
-                        Do {e.max_spots} mesta
-                      </span>
+                    {(e.category || (e.max_spots && !cancelled)) && (
+                      <div className="row" style={{ gap: 8, marginTop: 2 }}>
+                        {e.category && (
+                          <span className={`pill cat-${e.category}`}>{categoryLabel(e.category)}</span>
+                        )}
+                        {e.max_spots && !cancelled && (
+                          <span className="small muted" style={{ fontWeight: 600 }}>
+                            Do {e.max_spots} mesta
+                          </span>
+                        )}
+                      </div>
                     )}
                   </div>
                 </Link>

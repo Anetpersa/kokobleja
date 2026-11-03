@@ -72,7 +72,7 @@ export default async function EventPage({
         {(cancelled || category) && (
           <div className="row" style={{ gap: 8 }}>
             {cancelled && <span className="pill pill-cancelled-solid">OTKAZANO</span>}
-            {category && <span className="hero-badge">{category}</span>}
+            {category && <span className={`hero-badge cat-${event.category}`}>{category}</span>}
           </div>
         )}
         <h1 className="display" style={cancelled ? { textDecoration: "line-through" } : undefined}>{event.title}</h1>
