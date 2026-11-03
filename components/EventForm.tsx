@@ -1,4 +1,5 @@
-import type { EventRow } from "@/lib/events";
+import { LocationField } from "@/components/LocationField";
+import { CATEGORIES, type EventRow } from "@/lib/events";
 import { dateToBelgradeInput } from "@/lib/time";
 
 export function EventForm({
@@ -19,6 +20,20 @@ export function EventForm({
         <input type="text" name="title" defaultValue={event?.title} placeholder="npr. Board game veče" required />
       </label>
 
+      <fieldset className="stack" style={{ border: "none", padding: 0, margin: 0, gap: 8 }}>
+        <legend style={{ fontSize: 14, fontWeight: 800, marginBottom: 8 }}>
+          Vrsta <span className="muted" style={{ fontWeight: 600 }}>(opciono)</span>
+        </legend>
+        <div className="chips">
+          {CATEGORIES.map((c) => (
+            <label key={c.key} className="chip">
+              <input type="radio" name="category" value={c.key} defaultChecked={event?.category === c.key} />
+              <span>{c.label}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
       <label className="field">
         Datum i vreme
         <input
@@ -29,11 +44,7 @@ export function EventForm({
         />
       </label>
 
-      <label className="field">
-        Mesto
-        <input type="text" name="location" defaultValue={event?.location} placeholder="Naziv mesta i adresa" required />
-        <span className="small muted" style={{ fontWeight: 400 }}>Link ka mapi se pravi automatski iz ovoga.</span>
-      </label>
+      <LocationField defaultValue={event ? event.location : undefined} />
 
       <label className="field">
         <span>

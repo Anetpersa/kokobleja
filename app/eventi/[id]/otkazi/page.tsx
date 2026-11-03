@@ -1,3 +1,4 @@
+import { BackButton } from "@/components/BackButton";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { CANCEL_REASONS, canManage, EVENT_SELECT, type EventRow } from "@/lib/events";
@@ -22,7 +23,7 @@ export default async function OtkaziEventPage({
 
   return (
     <main className="page">
-      <Link href={`/eventi/${id}`} className="small">← Nazad na event</Link>
+      <BackButton href={`/eventi/${id}`} label="Nazad na event" />
       <div className="stack" style={{ gap: 4 }}>
         <h1 className="display">Otkaži event?</h1>
         <span className="muted">

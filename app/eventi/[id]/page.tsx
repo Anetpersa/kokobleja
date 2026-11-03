@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { ShareButton } from "@/components/ShareButton";
-import { canManage, EVENT_SELECT, mapsUrl, type EventRow } from "@/lib/events";
+import { canManage, categoryLabel, EVENT_SELECT, LOCATION_TBD, mapsUrl, type EventRow } from "@/lib/events";
 import { fullName, requireMember } from "@/lib/member";
 import { longDate, shortDateTime, timeOnly } from "@/lib/time";
 import { deleteEvent, restoreEvent } from "../actions";
@@ -28,13 +28,16 @@ export default async function EventPage({
   const cancelled = event.status === "cancelled";
   const manage = canManage(event, member);
   const path = `/eventi/${event.id}`;
-  const inviteText = `${event.title}, ${shortDateTime(event.starts_at)}, ${event.location}. Prijavi se:`;
+  const category = categoryLabel(event.category);
+  const inviteText = `${event.title}, ${shortDateTime(event.starts_at)}${event.location ? `, ${event.location}` : ""}. Prijavi se:`;
   const cancelText = `OTKAZANO: ${event.title} (${shortDateTime(event.starts_at)})${event.cancel_reason ? `. Razlog: ${event.cancel_reason}` : ""}`;
 
   return (
     <main className="page">
       <div className="spread">
-        <Link href="/" className="small">← Eventi</Link>
+        <Link href="/" className="icon-btn" aria-label="Nazad na evente">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
+        </Link>
         <div className="row" style={{ gap: 8 }}>
           {!cancelled && <ShareButton text={inviteText} path={path} />}
           {manage && (
@@ -66,7 +69,12 @@ export default async function EventPage({
       )}
 
       <section className={`hero${cancelled ? " hero-cancelled" : ""}`}>
-        {cancelled && <span className="pill pill-cancelled-solid">OTKAZANO</span>}
+        {(cancelled || category) && (
+          <div className="row" style={{ gap: 8 }}>
+            {cancelled && <span className="pill pill-cancelled-solid">OTKAZANO</span>}
+            {category && <span className="hero-badge">{category}</span>}
+          </div>
+        )}
         <h1 className="display" style={cancelled ? { textDecoration: "line-through" } : undefined}>{event.title}</h1>
         <span className="hero-sub">Organizuje {event.organizer ? fullName(event.organizer) : "—"}</span>
       </section>
@@ -103,8 +111,17 @@ export default async function EventPage({
         </div>
         <div className="info-row">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z" /><circle cx="12" cy="10" r="3" /></svg>
-          <strong style={{ flex: 1 }}>{event.location}</strong>
-          <a href={mapsUrl(event.location)} target="_blank" rel="noopener noreferrer" style={{ fontWeight: 800 }}>Mapa</a>
+          {event.location ? (
+            <>
+              <strong style={{ flex: 1 }}>{event.location}</strong>
+              <a href={mapsUrl(event.location)} target="_blank" rel="noopener noreferrer" style={{ fontWeight: 800 }}>Mapa</a>
+            </>
+          ) : (
+            <div className="stack" style={{ gap: 0 }}>
+              <strong>{LOCATION_TBD}</strong>
+              <span className="muted small">Organizator će javiti kad bude određeno.</span>
+            </div>
+          )}
         </div>
         {event.max_spots && (
           <div className="info-row">

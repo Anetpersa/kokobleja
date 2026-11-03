@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { CATEGORIES } from "@/lib/events";
 import { requireMember } from "@/lib/member";
 import { belgradeInputToDate } from "@/lib/time";
 
@@ -14,9 +15,14 @@ function fail(path: string, message: string): never {
   redirect(`${path}?greska=${encodeURIComponent(message)}`);
 }
 
+const CATEGORY_KEYS = new Set<string>(CATEGORIES.map((c) => c.key));
+
 function readEventForm(formData: FormData, path: string) {
   const title = clean(formData.get("title"));
-  const location = clean(formData.get("location"));
+  const locationTbd = formData.get("location_tbd") === "on";
+  const location = locationTbd ? null : clean(formData.get("location"));
+  const categoryRaw = clean(formData.get("category"));
+  const category = categoryRaw && CATEGORY_KEYS.has(categoryRaw) ? categoryRaw : null;
   const description = clean(formData.get("description"));
   const startsAt = belgradeInputToDate(String(formData.get("starts_at") ?? ""));
   const maxRaw = clean(formData.get("max_spots"));
@@ -24,7 +30,7 @@ function readEventForm(formData: FormData, path: string) {
 
   if (!title) fail(path, "Upiši naziv eventa.");
   if (!startsAt) fail(path, "Izaberi datum i vreme.");
-  if (!location) fail(path, "Upiši mesto.");
+  if (!location && !locationTbd) fail(path, "Upiši mesto ili označi da još nije određeno.");
   if (maxSpots !== null && (!Number.isInteger(maxSpots) || maxSpots < 1)) {
     fail(path, "Broj mesta mora biti ceo broj veći od nule.");
   }
@@ -32,6 +38,7 @@ function readEventForm(formData: FormData, path: string) {
   return {
     title,
     location,
+    category,
     description,
     starts_at: startsAt.toISOString(),
     max_spots: maxSpots,

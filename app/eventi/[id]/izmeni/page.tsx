@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { BackButton } from "@/components/BackButton";
 import { notFound, redirect } from "next/navigation";
 import { EventForm } from "@/components/EventForm";
 import { canManage, EVENT_SELECT, type EventRow } from "@/lib/events";
@@ -22,7 +22,7 @@ export default async function IzmeniEventPage({
 
   return (
     <main className="page">
-      <Link href={`/eventi/${id}`} className="small">← Nazad na event</Link>
+      <BackButton href={`/eventi/${id}`} label="Nazad na event" />
       <h1 className="display">Izmeni event</h1>
       {greska && <div className="notice notice-error">{greska}</div>}
       <EventForm action={updateEvent} event={event} submitLabel="Sačuvaj izmene" />

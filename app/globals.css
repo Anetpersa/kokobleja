@@ -204,3 +204,19 @@ textarea { resize: vertical; line-height: 1.4; }
 }
 .chip input:checked + span { background: var(--ink); color: var(--bg); border-color: var(--ink); font-weight: 700; }
 .chip input:focus-visible + span { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* ---------- Sređivanje ---------- */
+.icon-btn {
+  width: 44px; height: 44px; flex-shrink: 0; border-radius: 22px;
+  background: var(--surface); border: 1px solid var(--border); color: var(--ink);
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.icon-btn:hover { background: var(--tint); color: var(--ink); }
+.hero-badge {
+  font-size: 12px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase;
+  background: rgba(255, 255, 255, .18); color: #fff; padding: 4px 10px; border-radius: 10px;
+}
+.hero-cancelled .hero-badge { background: rgba(43, 27, 18, .08); color: var(--muted); }
+.check { display: inline-flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; cursor: pointer; min-height: 32px; }
+.check input { width: 20px; height: 20px; accent-color: var(--primary); }
+input:disabled { background: #f5ede6; color: var(--muted); }

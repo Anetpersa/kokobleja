@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { BackButton } from "@/components/BackButton";
 import { notFound } from "next/navigation";
 import { initials, requireAdmin, type Member } from "@/lib/member";
 import { deactivateMember, newInvite, unlinkMember, updateMember } from "../actions";
@@ -20,7 +20,7 @@ export default async function UrediClanaPage({
 
   return (
     <main className="page">
-      <Link href="/clanovi" className="small">← Članovi</Link>
+      <BackButton href="/clanovi" label="Nazad na članove" />
       <h1 className="display">Uredi člana</h1>
 
       <div className="stack" style={{ alignItems: "center" }}>

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { BottomNav } from "@/components/BottomNav";
 import { Logo } from "@/components/Logo";
-import { EVENT_SELECT, UPCOMING_GRACE_MS, type EventRow } from "@/lib/events";
+import { EVENT_SELECT, LOCATION_TBD, UPCOMING_GRACE_MS, type EventRow } from "@/lib/events";
 import { requireMember } from "@/lib/member";
 import { dayNumber, monthShort, timeOnly, weekdayShort } from "@/lib/time";
 
@@ -75,7 +75,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ t
                       ) : null}
                     </div>
                     <span className="muted" style={{ fontSize: 14 }}>
-                      {timeOnly(e.starts_at)} · {e.location}
+                      {timeOnly(e.starts_at)} · {e.location ?? LOCATION_TBD}
                     </span>
                     {e.max_spots && !cancelled && (
                       <span className="small muted" style={{ fontWeight: 600 }}>

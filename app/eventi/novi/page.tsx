@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { BackButton } from "@/components/BackButton";
 import { EventForm } from "@/components/EventForm";
 import { requireMember } from "@/lib/member";
 import { createEvent } from "../actions";
@@ -9,7 +9,7 @@ export default async function NoviEventPage({ searchParams }: { searchParams: Pr
 
   return (
     <main className="page">
-      <Link href="/" className="small">← Nazad</Link>
+      <BackButton href="/" label="Nazad na evente" />
       <h1 className="display">Novi event</h1>
       {greska && <div className="notice notice-error">{greska}</div>}
       <EventForm action={createEvent} submitLabel="Objavi event" />
