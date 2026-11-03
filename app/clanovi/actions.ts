@@ -80,6 +80,9 @@ export async function deactivateMember(formData: FormData) {
 
   const { error } = await supabase.from("members").update({ status: "deactivated" }).eq("id", id);
   if (error) fail(`/clanovi/${id}`, "Deaktivacija nije uspela.");
+
+  // Eventi koje je organizovao prelaze na admina koji ga je deaktivirao
+  await supabase.from("events").update({ organizer_id: me.id }).eq("organizer_id", id);
   // Korak 3: ovde će se brisati njegove prijave na buduće evente i pomerati lista čekanja
 
   revalidatePath("/clanovi");

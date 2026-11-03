@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BottomNav } from "@/components/BottomNav";
 import { InviteLinkButton } from "@/components/InviteLinkButton";
 import { fullName, initials, requireAdmin, type Member } from "@/lib/member";
 import { addMember, reactivateMember } from "./actions";
@@ -33,8 +34,8 @@ export default async function ClanoviPage({
   const highlighted = sorted.find((m) => m.id === novi);
 
   return (
-    <main className="page">
-      <Link href="/" className="small">← Nazad</Link>
+    <>
+    <main className="page" style={{ paddingBottom: 120 }}>
       <div className="stack" style={{ gap: 2 }}>
         <span className="eyebrow">Admin</span>
         <h1 className="display">Članovi</h1>
@@ -104,5 +105,7 @@ export default async function ClanoviPage({
         ))}
       </ul>
     </main>
+    <BottomNav active="clanovi" isAdmin />
+    </>
   );
 }
