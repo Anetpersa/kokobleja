@@ -56,6 +56,9 @@ export async function createEvent(formData: FormData) {
     .single();
   if (error || !data) fail("/eventi/novi", "Čuvanje nije uspelo. Probaj ponovo.");
 
+  // Organizator automatski dolazi na svoj event (može da se odjavi)
+  await supabase.rpc("set_rsvp", { p_event_id: data.id, p_status: "going" });
+
   revalidatePath("/");
   // Event je sačuvan bez obzira na deljenje; stranica eventa nudi „Podeli u Viber”
   redirect(`/eventi/${data.id}?novo=1`);
@@ -114,8 +117,36 @@ export async function deleteEvent(formData: FormData) {
   const id = String(formData.get("id"));
 
   const { error, count } = await supabase.from("events").delete({ count: "exact" }).eq("id", id);
-  if (error || !count) fail(`/eventi/${id}`, "Brisanje nije uspelo.");
+  if (error || !count) {
+    fail(`/eventi/${id}`, "Brisanje nije uspelo. Ako su se ljudi već prijavili, otkaži event umesto brisanja.");
+  }
 
   revalidatePath("/");
   redirect("/");
+}
+
+// ---------- Prijave ----------
+export async function setRsvp(formData: FormData) {
+  const { supabase } = await requireMember();
+  const id = String(formData.get("id"));
+  const status = formData.get("status") === "maybe" ? "maybe" : "going";
+
+  const { data, error } = await supabase.rpc("set_rsvp", { p_event_id: id, p_status: status });
+  if (error) fail(`/eventi/${id}`, error.message);
+
+  revalidatePath("/");
+  revalidatePath(`/eventi/${id}`);
+  redirect(data === "waitlist" ? `/eventi/${id}?cekanje=1` : `/eventi/${id}`);
+}
+
+export async function cancelRsvp(formData: FormData) {
+  const { supabase } = await requireMember();
+  const id = String(formData.get("id"));
+
+  const { error } = await supabase.rpc("cancel_rsvp", { p_event_id: id });
+  if (error) fail(`/eventi/${id}`, error.message);
+
+  revalidatePath("/");
+  revalidatePath(`/eventi/${id}`);
+  redirect(`/eventi/${id}`);
 }

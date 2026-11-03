@@ -48,3 +48,29 @@ export function mapsUrl(location: string) {
 export const LOCATION_TBD = "Mesto uskoro";
 
 export const CANCEL_REASONS = ["Klub zatvoren", "Premalo ljudi", "Organizator sprečen", "Loše vreme"];
+
+// ---------- Prijave ----------
+export type RsvpStatus = "going" | "maybe" | "waitlist";
+
+export type RsvpRow = {
+  event_id: string;
+  member_id: string;
+  status: RsvpStatus;
+  created_at: string;
+  member: Pick<Member, "first_name" | "last_name"> | null;
+};
+
+export const RSVP_SELECT = "event_id, member_id, status, created_at, member:members(first_name, last_name)";
+
+export function isPast(startsAt: string) {
+  return new Date(startsAt).getTime() < Date.now() - UPCOMING_GRACE_MS;
+}
+
+export function splitRsvps(rsvps: RsvpRow[]) {
+  const byTime = [...rsvps].sort((a, b) => a.created_at.localeCompare(b.created_at));
+  return {
+    going: byTime.filter((r) => r.status === "going"),
+    maybe: byTime.filter((r) => r.status === "maybe"),
+    waitlist: byTime.filter((r) => r.status === "waitlist"),
+  };
+}

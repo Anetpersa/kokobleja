@@ -83,7 +83,7 @@ export async function deactivateMember(formData: FormData) {
 
   // Eventi koje je organizovao prelaze na admina koji ga je deaktivirao
   await supabase.from("events").update({ organizer_id: me.id }).eq("organizer_id", id);
-  // Korak 3: ovde će se brisati njegove prijave na buduće evente i pomerati lista čekanja
+  // Njegove prijave na buduće evente briše baza (triger), a lista čekanja se sama pomera
 
   revalidatePath("/clanovi");
   redirect("/clanovi");

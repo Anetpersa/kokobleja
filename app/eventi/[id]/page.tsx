@@ -2,7 +2,20 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { ShareButton } from "@/components/ShareButton";
-import { canManage, categoryLabel, EVENT_SELECT, LOCATION_TBD, mapsUrl, type EventRow } from "@/lib/events";
+import { Attendees } from "@/components/Attendees";
+import { RsvpPanel } from "@/components/RsvpPanel";
+import {
+  canManage,
+  categoryLabel,
+  EVENT_SELECT,
+  isPast,
+  LOCATION_TBD,
+  mapsUrl,
+  RSVP_SELECT,
+  splitRsvps,
+  type EventRow,
+  type RsvpRow,
+} from "@/lib/events";
 import { fullName, requireMember } from "@/lib/member";
 import { longDate, shortDateTime, timeOnly } from "@/lib/time";
 import { deleteEvent, restoreEvent } from "../actions";
@@ -12,10 +25,10 @@ export default async function EventPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ novo?: string; otkazano?: string; greska?: string }>;
+  searchParams: Promise<{ novo?: string; otkazano?: string; cekanje?: string; greska?: string }>;
 }) {
   const { id } = await params;
-  const { novo, otkazano, greska } = await searchParams;
+  const { novo, otkazano, cekanje, greska } = await searchParams;
   const { supabase, member } = await requireMember();
 
   const { data: event } = await supabase
@@ -24,6 +37,16 @@ export default async function EventPage({
     .eq("id", id)
     .maybeSingle<EventRow>();
   if (!event) notFound();
+
+  const { data: rsvpData } = await supabase.from("rsvps").select(RSVP_SELECT).eq("event_id", id).returns<RsvpRow[]>();
+  const rsvps = rsvpData ?? [];
+  const { going, maybe, waitlist } = splitRsvps(rsvps);
+  const mine = rsvps.find((r) => r.member_id === member.id) ?? null;
+  const waitPosition = mine?.status === "waitlist" ? waitlist.findIndex((r) => r.member_id === member.id) + 1 : null;
+  const full = event.max_spots !== null && going.length >= event.max_spots;
+  const past = isPast(event.starts_at);
+  const othersSignedUp = rsvps.some((r) => r.member_id !== event.organizer_id);
+  const canDelete = member.role === "admin" || !othersSignedUp;
 
   const cancelled = event.status === "cancelled";
   const manage = canManage(event, member);
@@ -46,12 +69,16 @@ export default async function EventPage({
               <div className="menu-panel">
                 {!cancelled && <Link href={`${path}/izmeni`}>Izmeni event</Link>}
                 {!cancelled && <Link href={`${path}/otkazi`} className="danger-text">Otkaži event</Link>}
-                <form action={deleteEvent}>
-                  <input type="hidden" name="id" value={event.id} />
-                  <ConfirmButton message="Trajno obrisati ovaj event? Ovo je samo za greške (npr. duplikat). Za neodržane evente koristi Otkaži." className="menu-button">
-                    Obriši event
-                  </ConfirmButton>
-                </form>
+                {canDelete ? (
+                  <form action={deleteEvent}>
+                    <input type="hidden" name="id" value={event.id} />
+                    <ConfirmButton message="Trajno obrisati ovaj event? Ovo je samo za greške (npr. duplikat). Za neodržane evente koristi Otkaži." className="menu-button">
+                      Obriši event
+                    </ConfirmButton>
+                  </form>
+                ) : (
+                  <span className="menu-note">Brisanje nije moguće jer ima prijava. Otkaži event umesto toga.</span>
+                )}
               </div>
             </details>
           )}
@@ -123,21 +150,37 @@ export default async function EventPage({
             </div>
           )}
         </div>
-        {event.max_spots && (
-          <div className="info-row">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></svg>
-            <strong>Do {event.max_spots} mesta</strong>
-          </div>
-        )}
+        <div className="info-row">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+          {event.max_spots ? (
+            <div className="stack" style={{ flex: 1, gap: 6 }}>
+              <strong>
+                {Math.min(going.length, event.max_spots)} / {event.max_spots} mesta popunjeno
+                {waitlist.length > 0 && <span className="muted" style={{ fontWeight: 600 }}> · {waitlist.length} čeka</span>}
+              </strong>
+              <div className="bar" aria-hidden="true">
+                <div className="bar-fill" style={{ width: `${Math.min(100, (going.length / event.max_spots) * 100)}%` }} />
+              </div>
+            </div>
+          ) : (
+            <strong>
+              {going.length} dolazi{maybe.length > 0 && <span className="muted" style={{ fontWeight: 600 }}> · {maybe.length} možda</span>}
+            </strong>
+          )}
+        </div>
       </section>
 
       {event.description && <p style={{ margin: "0 4px", lineHeight: 1.5, whiteSpace: "pre-line" }}>{event.description}</p>}
 
-      {!cancelled && (
-        <div className="card muted small" style={{ textAlign: "center" }}>
-          Prijave (Dolazim / Možda) stižu u sledećem koraku.
-        </div>
+      {cekanje && mine?.status === "waitlist" && !cancelled && (
+        <div className="notice">Mesta su popunjena, pa si upisan/a na listu čekanja.</div>
       )}
+
+      {!cancelled && !past && (
+        <RsvpPanel eventId={event.id} myStatus={mine?.status ?? null} waitPosition={waitPosition} full={full} />
+      )}
+
+      <Attendees going={going} maybe={maybe} waitlist={waitlist} meId={member.id} past={past} />
     </main>
   );
 }

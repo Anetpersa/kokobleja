@@ -229,3 +229,41 @@ input:disabled { background: #f5ede6; color: var(--muted); }
 .cat-proslava   { background: #fce7f3; color: #9d174d; }
 .cat-ostalo     { background: #f5ede6; color: #6b4f3f; }
 .hero-cancelled .hero-badge { filter: grayscale(1); }
+
+/* ---------- Korak 3: prijave ---------- */
+.pill-going { background: var(--teal-tint); color: var(--teal); }
+.pill-full { background: var(--surface); color: var(--primary-dark); border: 1.5px solid var(--primary); padding: 1px 7px; }
+
+.rsvp-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.rsvp-grid form { display: contents; }
+.rsvp-btn {
+  height: 56px; border-radius: 18px; font: inherit; font-size: 17px; font-weight: 800; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  background: var(--primary); color: #fff; border: none;
+}
+.rsvp-btn:hover { background: var(--primary-dark); }
+.rsvp-on { background: var(--teal); }
+.rsvp-on:hover { background: #0f4c48; }
+.rsvp-maybe { background: var(--surface); color: var(--ink); border: 1.5px solid var(--border-strong); }
+.rsvp-maybe:hover { background: var(--tint); }
+.rsvp-on-maybe, .rsvp-on-maybe:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+.link-btn {
+  background: none; border: none; padding: 8px 4px; font: inherit; font-size: 14px; font-weight: 700;
+  color: var(--muted); text-decoration: underline; cursor: pointer;
+}
+.link-btn:hover { color: var(--ink); }
+
+.bar { height: 8px; border-radius: 4px; background: var(--tint); overflow: hidden; }
+.bar-fill { height: 8px; border-radius: 4px; background: #ea580c; }
+
+.person-chip {
+  display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px 4px 4px; border-radius: 16px;
+  background: var(--bg); font-size: 13px; font-weight: 700;
+}
+.person-me { background: var(--teal-tint); color: var(--teal); }
+.avatar-sm { width: 24px; height: 24px; border-radius: 12px; font-size: 10px; }
+.waitlist { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+.person-me-text { font-weight: 800; color: var(--teal); }
+
+.menu-note { display: block; padding: 10px 14px; font-size: 13px; color: var(--muted); line-height: 1.4; }
