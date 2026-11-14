@@ -329,3 +329,14 @@ input:disabled { background: #f5ede6; color: var(--muted); }
 .install-close { color: var(--muted); }
 .install-steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; line-height: 1.45; }
 .inline-glyph { vertical-align: -3px; color: var(--primary); }
+
+/* Obaveštenja (korak 6b) */
+.push-on { font-weight: 800; color: var(--teal); }
+.audience { display: flex; flex-direction: column; gap: 10px; }
+.audience-option {
+  display: flex; gap: 12px; align-items: flex-start; padding: 14px; border-radius: 16px;
+  background: var(--surface); border: 1.5px solid var(--border-strong); cursor: pointer;
+}
+.audience-option:has(input:checked) { border-color: var(--primary); background: var(--tint); }
+.audience-option input { margin-top: 4px; accent-color: var(--primary); width: 18px; height: 18px; flex: none; }
+.audience-option:has(input:disabled) { opacity: .55; cursor: default; }

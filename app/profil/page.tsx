@@ -1,7 +1,8 @@
 import { BottomNav } from "@/components/BottomNav";
 import { InstallApp } from "@/components/InstallApp";
+import { PushToggle } from "@/components/PushToggle";
+import { SignOutButton } from "@/components/SignOutButton";
 import { fullName, initials, requireMember } from "@/lib/member";
-import { signOut } from "../prijava/actions";
 
 export default async function ProfilPage() {
   const { user, member } = await requireMember();
@@ -23,9 +24,8 @@ export default async function ProfilPage() {
         </div>
         <span className="small muted">Ime i prezime menja admin grupe.</span>
         <InstallApp variant="card" />
-        <form action={signOut}>
-          <button className="btn btn-outline btn-block" type="submit">Odjavi se</button>
-        </form>
+        <PushToggle variant="card" />
+        <SignOutButton />
       </main>
       <BottomNav active="profil" isAdmin={member.role === "admin"} />
     </>

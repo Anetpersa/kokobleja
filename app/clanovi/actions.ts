@@ -2,7 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { requireAdmin } from "@/lib/member";
+import { sendPendingPushes } from "@/lib/push";
 
 function clean(v: FormDataEntryValue | null) {
   const s = String(v ?? "").trim();
@@ -84,6 +86,8 @@ export async function deactivateMember(formData: FormData) {
   // Eventi koje je organizovao prelaze na admina koji ga je deaktivirao
   await supabase.from("events").update({ organizer_id: me.id }).eq("organizer_id", id);
   // Njegove prijave na buduće evente briše baza (triger), a lista čekanja se sama pomera
+  // (i javlja onima koji su dobili mesto)
+  after(sendPendingPushes);
 
   revalidatePath("/clanovi");
   redirect("/clanovi");

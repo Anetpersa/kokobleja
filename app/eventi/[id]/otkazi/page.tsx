@@ -56,8 +56,8 @@ export default async function OtkaziEventPage({
         </label>
 
         <div className="notice">
-          Event ostaje u listi kao otkazan i može da se vrati. Posle otkazivanja dobijaš dugme da javiš
-          ekipi u Viber.
+          Event ostaje u listi kao otkazan i može da se vrati. Prijavljeni sa uključenim obaveštenjima
+          odmah dobiju obaveštenje, a posle otkazivanja dobijaš i dugme da javiš ekipi u Viber.
         </div>
 
         <button className="btn btn-block btn-solid-danger" type="submit">Otkaži event</button>

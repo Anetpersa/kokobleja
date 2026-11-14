@@ -2,13 +2,20 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { CATEGORIES } from "@/lib/events";
 import { requireMember } from "@/lib/member";
+import { sendPendingPushes } from "@/lib/push";
 import { belgradeInputToDate } from "@/lib/time";
 
 function clean(v: FormDataEntryValue | null) {
   const s = String(v ?? "").trim();
   return s.length ? s : null;
+}
+
+// Obaveštenja koja je baza upravo pripremila šaljemo odmah posle odgovora, da ekran ne čeka
+function pushLater() {
+  after(sendPendingPushes);
 }
 
 function fail(path: string, message: string): never {
@@ -59,6 +66,7 @@ export async function createEvent(formData: FormData) {
   // Organizator automatski dolazi na svoj event (može da se odjavi)
   await supabase.rpc("set_rsvp", { p_event_id: data.id, p_status: "going" });
 
+  pushLater();
   revalidatePath("/");
   // Event je sačuvan bez obzira na deljenje; stranica eventa nudi „Podeli u Viber”
   redirect(`/eventi/${data.id}?novo=1`);
@@ -71,8 +79,9 @@ export async function updateEvent(formData: FormData) {
 
   const { error } = await supabase.from("events").update(values).eq("id", id);
   if (error) fail(`/eventi/${id}/izmeni`, "Čuvanje nije uspelo.");
-  // Korak 6: obaveštenje prijavljenima ako se promene datum, vreme ili mesto
+  // Obaveštenje prijavljenima (ako su promenjeni datum, vreme ili mesto) pravi baza
 
+  pushLater();
   revalidatePath("/");
   revalidatePath(`/eventi/${id}`);
   redirect(`/eventi/${id}`);
@@ -90,8 +99,9 @@ export async function cancelEvent(formData: FormData) {
     .update({ status: "cancelled", cancel_reason: reason, cancelled_at: new Date().toISOString() })
     .eq("id", id);
   if (error) fail(`/eventi/${id}/otkazi`, "Otkazivanje nije uspelo.");
-  // Korak 6: push obaveštenje prijavljenima
+  // Obaveštenje prijavljenima pravi baza (triger)
 
+  pushLater();
   revalidatePath("/");
   revalidatePath(`/eventi/${id}`);
   redirect(`/eventi/${id}?otkazano=1`);
@@ -107,6 +117,7 @@ export async function restoreEvent(formData: FormData) {
     .eq("id", id);
   if (error) fail(`/eventi/${id}`, "Vraćanje nije uspelo.");
 
+  pushLater();
   revalidatePath("/");
   revalidatePath(`/eventi/${id}`);
   redirect(`/eventi/${id}`);
@@ -134,6 +145,7 @@ export async function setRsvp(formData: FormData) {
   const { data, error } = await supabase.rpc("set_rsvp", { p_event_id: id, p_status: status });
   if (error) fail(`/eventi/${id}`, error.message);
 
+  pushLater();
   revalidatePath("/");
   revalidatePath(`/eventi/${id}`);
   redirect(data === "waitlist" ? `/eventi/${id}?cekanje=1` : `/eventi/${id}`);
@@ -146,9 +158,29 @@ export async function cancelRsvp(formData: FormData) {
   const { error } = await supabase.rpc("cancel_rsvp", { p_event_id: id });
   if (error) fail(`/eventi/${id}`, error.message);
 
+  pushLater();
   revalidatePath("/");
   revalidatePath(`/eventi/${id}`);
   redirect(`/eventi/${id}`);
+}
+
+// ---------- Podsetnik („Podseti ekipu”) ----------
+export async function remindEvent(formData: FormData) {
+  const { supabase } = await requireMember();
+  const id = String(formData.get("id"));
+  const audience = formData.get("audience") === "unsigned" ? "unsigned" : "signed";
+  const message = clean(formData.get("message"));
+
+  const { data, error } = await supabase.rpc("remind_event", {
+    p_event_id: id,
+    p_audience: audience,
+    p_message: message,
+  });
+  if (error) fail(`/eventi/${id}/podseti`, error.message);
+
+  pushLater();
+  revalidatePath(`/eventi/${id}/podseti`);
+  redirect(`/eventi/${id}?podsetnik=${Number(data ?? 0)}`);
 }
 
 // ---------- Komentari ----------
@@ -165,6 +197,7 @@ export async function addComment(prev: CommentState, formData: FormData): Promis
   const { error } = await supabase.from("comments").insert({ event_id: eventId, member_id: member.id, body });
   if (error) return { ...prev, error: "Slanje nije uspelo. Ako je event otkazan, komentari su zaključani." };
 
+  pushLater();
   revalidatePath(`/eventi/${eventId}`);
   return { error: null, sent: prev.sent + 1 };
 }

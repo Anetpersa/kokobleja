@@ -19,7 +19,7 @@ export function Comments({
   locked: boolean;
 }) {
   return (
-    <section className="card stack" style={{ gap: 12 }}>
+    <section id="komentari" className="card stack" style={{ gap: 12 }}>
       <CommentsLive eventId={eventId} commentIds={comments.map((c) => c.id)} />
       <strong>Komentari{comments.length > 0 ? ` (${comments.length})` : ""}</strong>
 

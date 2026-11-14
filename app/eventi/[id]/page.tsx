@@ -51,6 +51,11 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   };
 }
 
+// 1 osoba, 2 osobe, 5 osoba
+function osobe(n: number) {
+  return n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? "osobe" : "osoba";
+}
+
 // Neprijavljeni vide samo naziv i datum (isto što i preview u Viberu) i dugme za prijavu
 async function EventGate({ id }: { id: string }) {
   const preview = await getEventPreview(id);
@@ -82,10 +87,10 @@ export default async function EventPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ novo?: string; otkazano?: string; cekanje?: string; greska?: string }>;
+  searchParams: Promise<{ novo?: string; otkazano?: string; cekanje?: string; podsetnik?: string; greska?: string }>;
 }) {
   const { id } = await params;
-  const { novo, otkazano, cekanje, greska } = await searchParams;
+  const { novo, otkazano, cekanje, podsetnik, greska } = await searchParams;
   const viewer = await getViewer();
   if (!viewer.user) return <EventGate id={id} />;
   if (!viewer.member) redirect("/privatna");
@@ -108,6 +113,7 @@ export default async function EventPage({
   const waitPosition = mine?.status === "waitlist" ? waitlist.findIndex((r) => r.member_id === member.id) + 1 : null;
   const full = event.max_spots !== null && going.length >= event.max_spots;
   const past = isPast(event.starts_at);
+  const started = new Date(event.starts_at).getTime() <= Date.now();
   const othersSignedUp = rsvps.some((r) => r.member_id !== event.organizer_id);
   const canDelete = member.role === "admin" || !othersSignedUp;
 
@@ -130,6 +136,7 @@ export default async function EventPage({
             <details className="menu">
               <summary className="btn btn-ghost btn-sm" aria-label="Opcije eventa">Opcije ▾</summary>
               <div className="menu-panel">
+                {!cancelled && !started && <Link href={`${path}/podseti`}>Podseti ekipu</Link>}
                 {!cancelled && <Link href={`${path}/izmeni`}>Izmeni event</Link>}
                 {!cancelled && <Link href={`${path}/otkazi`} className="danger-text">Otkaži event</Link>}
                 {canDelete ? (
@@ -149,6 +156,14 @@ export default async function EventPage({
       </div>
 
       {greska && <div className="notice notice-error">{greska}</div>}
+
+      {podsetnik !== undefined && (
+        <div className="notice">
+          {Number(podsetnik) > 0
+            ? `Podsetnik je poslat (obaveštenje dobija ${Number(podsetnik)} ${osobe(Number(podsetnik))}).`
+            : "Podsetnik je zabeležen, ali niko od njih još nema uključena obaveštenja. Javi im u Viber."}
+        </div>
+      )}
 
       {novo && (
         <div className="notice stack">
@@ -182,7 +197,11 @@ export default async function EventPage({
             <strong>Javi ekipi</strong>
             <span className="eyebrow" style={{ fontSize: 11 }}>Samo organizator</span>
           </div>
-          {otkazano && <span className="small muted">Push obaveštenja stižu u kasnijem koraku, zato javi u Viber.</span>}
+          {otkazano && (
+            <span className="small muted">
+              Prijavljeni sa uključenim obaveštenjima su dobili obaveštenje. Za ostale podeli otkazivanje u Viber.
+            </span>
+          )}
           <ShareButton text={cancelText} path={path} label="Podeli otkazivanje u Viber" className="btn btn-viber btn-block" />
           <form action={restoreEvent}>
             <input type="hidden" name="id" value={event.id} />
