@@ -28,6 +28,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
     font("nunito-latin-800-normal.woff"),
     font("nunito-latin-ext-800-normal.woff"),
   ]);
+  const koka = `data:image/png;base64,${(await readFile(join(process.cwd(), "assets/koka.png"))).toString("base64")}`;
 
   return new ImageResponse(
     (
@@ -39,12 +40,8 @@ export default async function Image({ params }: { params: Promise<{ id: string }
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-          <svg width="64" height="64" viewBox="0 0 34 34">
-            <path d="M17 3c6.5 0 11.5 9 11.5 16.5a11.5 11.5 0 0 1-23 0C5.5 12 10.5 3 17 3z" fill="#EA580C" />
-            <circle cx="20.5" cy="15" r="1.9" fill="#2B1B12" />
-            <path d="M26.5 17.5l4.5 1.6-4.5 1.6z" fill="#F59E0B" />
-            <path d="M13 5.5c0-2 2-3 3-1.5c1-1.5 3.2-0.8 3 1.2" stroke="#B91C1C" strokeWidth="2" fill="none" strokeLinecap="round" />
-          </svg>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={koka} width={72} height={72} alt="" />
           <span style={{ fontFamily: "Baloo 2, Baloo 2 Ext", fontSize: 44, color: "#9A3412" }}>Kokobleja</span>
           {event?.cancelled && (
             <span

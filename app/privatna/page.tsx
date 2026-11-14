@@ -17,7 +17,7 @@ export default async function PrivatnaPage() {
           display: "flex", alignItems: "center", justifyContent: "center",
         }}
       >
-        <LogoMark size={64} />
+        <LogoMark size={108} />
       </div>
       <h1 className="display">Ovo je privatna grupa</h1>
       <p className="muted" style={{ margin: 0, lineHeight: 1.5 }}>

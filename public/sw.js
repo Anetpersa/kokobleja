@@ -4,9 +4,9 @@
 // - Statični delovi aplikacije (/_next/static) čuvaju se u kešu, da app brže krene.
 // - U koraku 6b ovde dolaze push obaveštenja.
 
-const CACHE = "kokobleja-v1";
+const CACHE = "kokobleja-v2";
 const OFFLINE_URL = "/offline.html";
-const PRECACHE = [OFFLINE_URL, "/icons/icon-192.png"];
+const PRECACHE = [OFFLINE_URL, "/koka.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
