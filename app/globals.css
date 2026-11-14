@@ -267,3 +267,18 @@ input:disabled { background: #f5ede6; color: var(--muted); }
 .person-me-text { font-weight: 800; color: var(--teal); }
 
 .menu-note { display: block; padding: 10px 14px; font-size: 13px; color: var(--muted); line-height: 1.4; }
+
+/* ---------- Korak 4: kalendar i Viber browser ---------- */
+.link-summary { cursor: pointer; color: var(--primary); font-weight: 800; white-space: nowrap; }
+.link-summary:hover { color: var(--primary-dark); }
+.menu-hint { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-top: 2px; }
+
+.inapp-notice {
+  margin: 12px auto 0; max-width: 496px; width: calc(100% - 24px);
+  padding: 14px; border-radius: 16px; background: #ede9fe; color: #2e1065;
+  display: flex; flex-direction: column; gap: 10px; font-size: 14px; line-height: 1.45;
+}
+.inapp-close {
+  background: none; border: none; font-size: 24px; line-height: 1; cursor: pointer;
+  color: #2e1065; padding: 0 4px;
+}

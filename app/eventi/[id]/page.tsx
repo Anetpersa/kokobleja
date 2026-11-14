@@ -1,5 +1,8 @@
+import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { CalendarMenu } from "@/components/CalendarMenu";
+import { Logo } from "@/components/Logo";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { ShareButton } from "@/components/ShareButton";
 import { Attendees } from "@/components/Attendees";
@@ -16,9 +19,60 @@ import {
   type EventRow,
   type RsvpRow,
 } from "@/lib/events";
-import { fullName, requireMember } from "@/lib/member";
+import { fullName, getViewer } from "@/lib/member";
+import { getEventPreview } from "@/lib/preview";
+import { eventUrl } from "@/lib/site";
 import { longDate, shortDateTime, timeOnly } from "@/lib/time";
 import { deleteEvent, restoreEvent } from "../actions";
+
+// Naslov i opis za preview linka u Viberu (slika je u opengraph-image.tsx)
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  const preview = await getEventPreview(id);
+  if (!preview) return { title: "Kokobleja" };
+
+  const title = preview.cancelled ? `OTKAZANO: ${preview.title}` : preview.title;
+  const description = `${longDate(preview.starts_at)} u ${timeOnly(preview.starts_at)}`;
+  return {
+    title: `${title} · Kokobleja`,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: eventUrl(id),
+      siteName: "Kokobleja",
+      locale: "sr_RS",
+      type: "website",
+    },
+    twitter: { card: "summary_large_image", title, description },
+  };
+}
+
+// Neprijavljeni vide samo naziv i datum (isto što i preview u Viberu) i dugme za prijavu
+async function EventGate({ id }: { id: string }) {
+  const preview = await getEventPreview(id);
+  if (!preview) notFound();
+  const path = `/eventi/${id}`;
+
+  return (
+    <main className="page">
+      <Logo />
+      <div className="card stack" style={{ gap: 6 }}>
+        <span className="eyebrow">{preview.cancelled ? "Otkazan event" : "Poziv na event"}</span>
+        <h1 className="display" style={preview.cancelled ? { textDecoration: "line-through" } : undefined}>
+          {preview.title}
+        </h1>
+        <strong>{longDate(preview.starts_at)} u {timeOnly(preview.starts_at)}</strong>
+      </div>
+      <p className="muted" style={{ margin: 0, lineHeight: 1.5 }}>
+        Kokobleja je privatna grupa. Prijavi se da vidiš detalje i javiš da li dolaziš.
+      </p>
+      <Link className="btn btn-block" href={`/prijava?next=${encodeURIComponent(path)}`}>
+        Prijavi se
+      </Link>
+    </main>
+  );
+}
 
 export default async function EventPage({
   params,
@@ -29,7 +83,10 @@ export default async function EventPage({
 }) {
   const { id } = await params;
   const { novo, otkazano, cekanje, greska } = await searchParams;
-  const { supabase, member } = await requireMember();
+  const viewer = await getViewer();
+  if (!viewer.user) return <EventGate id={id} />;
+  if (!viewer.member) redirect("/privatna");
+  const { supabase, member } = viewer;
 
   const { data: event } = await supabase
     .from("events")
@@ -131,10 +188,11 @@ export default async function EventPage({
       <section className="card" style={{ padding: "4px 16px" }}>
         <div className="info-row">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="3" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
-          <div className="stack" style={{ gap: 0 }}>
+          <div className="stack" style={{ gap: 0, flex: 1 }}>
             <strong>{longDate(event.starts_at)}</strong>
             <span className="muted">{timeOnly(event.starts_at)}</span>
           </div>
+          {!cancelled && !past && <CalendarMenu event={event} />}
         </div>
         <div className="info-row">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z" /><circle cx="12" cy="10" r="3" /></svg>

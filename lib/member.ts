@@ -19,13 +19,13 @@ export function initials(m: Pick<Member, "first_name" | "last_name">) {
   return ((m.first_name?.[0] ?? "") + (m.last_name?.[0] ?? "")).toUpperCase();
 }
 
-// Vraća prijavljenog aktivnog člana ili preusmerava (na prijavu ili na "privatna grupa")
-export async function requireMember() {
+// Ko je otvorio stranicu: nije prijavljen (user = null), prijavljen ali nije član (member = null), ili član
+export async function getViewer() {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) redirect("/prijava");
+  if (!user) return { supabase, user: null, member: null };
 
   const { data: member } = await supabase
     .from("members")
@@ -34,6 +34,13 @@ export async function requireMember() {
     .eq("status", "active")
     .maybeSingle<Member>();
 
+  return { supabase, user, member: member ?? null };
+}
+
+// Vraća prijavljenog aktivnog člana ili preusmerava (na prijavu ili na "privatna grupa")
+export async function requireMember() {
+  const { supabase, user, member } = await getViewer();
+  if (!user) redirect("/prijava");
   if (!member) redirect("/privatna");
   return { supabase, user, member };
 }
