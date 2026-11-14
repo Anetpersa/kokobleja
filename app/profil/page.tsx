@@ -1,4 +1,5 @@
 import { BottomNav } from "@/components/BottomNav";
+import { InstallApp } from "@/components/InstallApp";
 import { fullName, initials, requireMember } from "@/lib/member";
 import { signOut } from "../prijava/actions";
 
@@ -21,6 +22,7 @@ export default async function ProfilPage() {
           </div>
         </div>
         <span className="small muted">Ime i prezime menja admin grupe.</span>
+        <InstallApp variant="card" />
         <form action={signOut}>
           <button className="btn btn-outline btn-block" type="submit">Odjavi se</button>
         </form>

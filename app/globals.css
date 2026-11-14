@@ -22,6 +22,7 @@ html, body {
   color: var(--ink);
   font-family: var(--font-body), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
 }
 
 a { color: var(--primary); }
@@ -142,7 +143,7 @@ textarea { resize: vertical; line-height: 1.4; }
 .pill-cancelled-solid { align-self: flex-start; background: var(--danger); color: #fff; font-size: 12px; font-weight: 800; letter-spacing: .6px; padding: 4px 10px; border-radius: 10px; }
 
 .fab {
-  position: fixed; right: max(20px, calc(50% - 240px)); bottom: 96px; z-index: 10;
+  position: fixed; right: max(20px, calc(50% - 240px)); bottom: calc(96px + env(safe-area-inset-bottom)); z-index: 10;
   height: 56px; padding: 0 22px; border-radius: 28px; background: var(--primary); color: #fff;
   display: flex; align-items: center; gap: 8px; text-decoration: none; font-weight: 800; font-size: 16px;
   box-shadow: 0 8px 20px rgba(194, 65, 12, .35);
@@ -293,3 +294,16 @@ input:disabled { background: #f5ede6; color: var(--muted); }
   font: inherit; font-size: 12px; font-weight: 700; color: var(--muted);
 }
 .comment-delete:hover { color: var(--danger); }
+
+/* ---------- Korak 6a: instalacija aplikacije ---------- */
+.install-card { display: flex; flex-direction: column; gap: 10px; border-color: var(--border-strong); }
+.install-banner { background: var(--tint); }
+.install-done { background: var(--teal-tint); border-color: transparent; color: var(--teal); }
+.install-icon {
+  width: 36px; height: 36px; border-radius: 12px; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--primary); color: #fff;
+}
+.install-close { color: var(--muted); }
+.install-steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; line-height: 1.45; }
+.inline-glyph { vertical-align: -3px; color: var(--primary); }

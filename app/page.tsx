@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BottomNav } from "@/components/BottomNav";
+import { InstallApp } from "@/components/InstallApp";
 import { Logo } from "@/components/Logo";
 import { categoryLabel, EVENT_SELECT, LOCATION_TBD, UPCOMING_GRACE_MS, type EventRow, type RsvpStatus } from "@/lib/events";
 import { requireMember } from "@/lib/member";
@@ -49,6 +50,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ t
       <main className="page" style={{ paddingBottom: 160 }}>
         <Logo />
         <h1 className="display">Ćao, {member.first_name}!</h1>
+        <InstallApp variant="banner" />
 
         <nav className="tabs" aria-label="Filter eventova">
           {TABS.map((t) => (
