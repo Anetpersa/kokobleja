@@ -62,3 +62,12 @@ export function shortDateTime(iso: string) {
   const d = fmt(iso, { weekday: "short", day: "numeric", month: "short" }).replace(/\./g, (m, i, s) => (i === s.length - 1 ? "" : m));
   return `${d} u ${timeOnly(iso)}`;
 }
+
+// "upravo", "pre 5 min", "pre 3 h", a starije od dana: "čet, 5. nov u 19:00"
+export function timeAgo(iso: string, now = Date.now()) {
+  const min = Math.floor((now - new Date(iso).getTime()) / 60000);
+  if (min < 1) return "upravo";
+  if (min < 60) return `pre ${min} min`;
+  if (min < 24 * 60) return `pre ${Math.floor(min / 60)} h`;
+  return shortDateTime(iso);
+}

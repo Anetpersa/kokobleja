@@ -74,3 +74,15 @@ export function splitRsvps(rsvps: RsvpRow[]) {
     waitlist: byTime.filter((r) => r.status === "waitlist"),
   };
 }
+
+// ---------- Komentari ----------
+export type CommentRow = {
+  id: string;
+  event_id: string;
+  member_id: string;
+  body: string;
+  created_at: string;
+  member: Pick<Member, "first_name" | "last_name"> | null;
+};
+
+export const COMMENT_SELECT = "id, event_id, member_id, body, created_at, member:members(first_name, last_name)";

@@ -150,3 +150,32 @@ export async function cancelRsvp(formData: FormData) {
   revalidatePath(`/eventi/${id}`);
   redirect(`/eventi/${id}`);
 }
+
+// ---------- Komentari ----------
+export type CommentState = { error: string | null; sent: number };
+
+export async function addComment(prev: CommentState, formData: FormData): Promise<CommentState> {
+  const { supabase, member } = await requireMember();
+  const eventId = String(formData.get("event_id"));
+  const body = clean(formData.get("body"));
+
+  if (!body) return { ...prev, error: "Komentar je prazan." };
+  if (body.length > 1000) return { ...prev, error: "Komentar može da ima najviše 1000 znakova." };
+
+  const { error } = await supabase.from("comments").insert({ event_id: eventId, member_id: member.id, body });
+  if (error) return { ...prev, error: "Slanje nije uspelo. Ako je event otkazan, komentari su zaključani." };
+
+  revalidatePath(`/eventi/${eventId}`);
+  return { error: null, sent: prev.sent + 1 };
+}
+
+export async function deleteComment(formData: FormData) {
+  const { supabase } = await requireMember();
+  const id = String(formData.get("id"));
+  const eventId = String(formData.get("event_id"));
+
+  const { error } = await supabase.from("comments").delete().eq("id", id);
+  if (error) fail(`/eventi/${eventId}`, "Brisanje komentara nije uspelo.");
+
+  revalidatePath(`/eventi/${eventId}`);
+}

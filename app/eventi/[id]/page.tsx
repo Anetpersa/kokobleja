@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { CalendarMenu } from "@/components/CalendarMenu";
+import { Comments } from "@/components/Comments";
 import { Logo } from "@/components/Logo";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { ShareButton } from "@/components/ShareButton";
@@ -10,12 +11,14 @@ import { RsvpPanel } from "@/components/RsvpPanel";
 import {
   canManage,
   categoryLabel,
+  COMMENT_SELECT,
   EVENT_SELECT,
   isPast,
   LOCATION_TBD,
   mapsUrl,
   RSVP_SELECT,
   splitRsvps,
+  type CommentRow,
   type EventRow,
   type RsvpRow,
 } from "@/lib/events";
@@ -95,7 +98,10 @@ export default async function EventPage({
     .maybeSingle<EventRow>();
   if (!event) notFound();
 
-  const { data: rsvpData } = await supabase.from("rsvps").select(RSVP_SELECT).eq("event_id", id).returns<RsvpRow[]>();
+  const [{ data: rsvpData }, { data: commentData }] = await Promise.all([
+    supabase.from("rsvps").select(RSVP_SELECT).eq("event_id", id).returns<RsvpRow[]>(),
+    supabase.from("comments").select(COMMENT_SELECT).eq("event_id", id).order("created_at").returns<CommentRow[]>(),
+  ]);
   const rsvps = rsvpData ?? [];
   const { going, maybe, waitlist } = splitRsvps(rsvps);
   const mine = rsvps.find((r) => r.member_id === member.id) ?? null;
@@ -239,6 +245,8 @@ export default async function EventPage({
       )}
 
       <Attendees going={going} maybe={maybe} waitlist={waitlist} meId={member.id} past={past} />
+
+      <Comments eventId={event.id} comments={commentData ?? []} me={member} locked={cancelled} />
     </main>
   );
 }
