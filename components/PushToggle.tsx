@@ -97,8 +97,11 @@ export function PushToggle({ variant }: { variant: "card" | "banner" }) {
       }
       setS((prev) => (prev ? { ...prev, permission: "granted", subscribed: true } : prev));
       setNote("Obaveštenja su uključena! Tapni „Pošalji probno” da proveriš.");
-    } catch {
-      setNote("Uključivanje nije uspelo. Proveri internet i probaj ponovo.");
+    } catch (e) {
+      // Tehnički detalj na kraju poruke pomaže da se otkrije uzrok
+      const err = e as Error;
+      const detail = err?.message === "no-sw" ? "service worker nije spreman" : `${err?.name ?? "Greška"}: ${err?.message ?? ""}`;
+      setNote(`Uključivanje nije uspelo. Probaj ponovo. (${detail})`);
     } finally {
       setBusy(false);
     }
