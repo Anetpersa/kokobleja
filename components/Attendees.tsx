@@ -1,13 +1,43 @@
 import type { RsvpRow } from "@/lib/events";
 import { fullName, initials } from "@/lib/member";
 
-function PersonChip({ r, highlight }: { r: RsvpRow; highlight: boolean }) {
+const VISIBLE = 8; // koliko osoba se vidi pre „Prikaži još"
+
+function PersonRow({ r, isMe }: { r: RsvpRow; isMe: boolean }) {
   const name = r.member ? fullName(r.member) : "Bivši član";
   return (
-    <span className={`person-chip${highlight ? " person-me" : ""}`}>
-      <span className="avatar avatar-sm">{r.member ? initials(r.member) : "?"}</span>
-      {name}
-    </span>
+    <li className={`person-row${isMe ? " person-me" : ""}`}>
+      <span className="avatar avatar-md">{r.member ? initials(r.member) : "?"}</span>
+      <span className="person-name">{name}</span>
+      {isMe && <span className="person-you">Ti</span>}
+    </li>
+  );
+}
+
+function PersonList({ rows, meId }: { rows: RsvpRow[]; meId: string }) {
+  const first = rows.slice(0, VISIBLE);
+  const rest = rows.slice(VISIBLE);
+  return (
+    <div>
+      <ul className="person-list">
+        {first.map((r) => (
+          <PersonRow key={r.member_id} r={r} isMe={r.member_id === meId} />
+        ))}
+      </ul>
+      {rest.length > 0 && (
+        <details className="person-more">
+          <summary>
+            <span className="more-closed">Prikaži još {rest.length}</span>
+            <span className="more-open">Prikaži manje</span>
+          </summary>
+          <ul className="person-list">
+            {rest.map((r) => (
+              <PersonRow key={r.member_id} r={r} isMe={r.member_id === meId} />
+            ))}
+          </ul>
+        </details>
+      )}
+    </div>
   );
 }
 
@@ -36,11 +66,7 @@ export function Attendees({
     <section className="card stack" style={{ gap: 12 }}>
       <strong>{past ? "Bili su" : "Dolazi"} ({going.length})</strong>
       {going.length > 0 ? (
-        <div className="chips">
-          {going.map((r) => (
-            <PersonChip key={r.member_id} r={r} highlight={r.member_id === meId} />
-          ))}
-        </div>
+        <PersonList rows={going} meId={meId} />
       ) : (
         <span className="small muted">Niko još nije potvrdio.</span>
       )}
@@ -48,11 +74,7 @@ export function Attendees({
       {maybe.length > 0 && (
         <>
           <strong style={{ marginTop: 4 }}>Možda ({maybe.length})</strong>
-          <div className="chips">
-            {maybe.map((r) => (
-              <PersonChip key={r.member_id} r={r} highlight={r.member_id === meId} />
-            ))}
-          </div>
+          <PersonList rows={maybe} meId={meId} />
         </>
       )}
 
