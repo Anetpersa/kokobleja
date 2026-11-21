@@ -96,6 +96,7 @@ input:focus, select:focus { outline: 2px solid var(--primary); outline-offset: 1
 .list { display: flex; flex-direction: column; padding: 0; }
 .list > li { list-style: none; padding: 12px 0; border-bottom: 1px solid #f8e8da; }
 .list > li:last-child { border-bottom: none; }
+.card.list { padding: 4px 16px; }
 
 .notice { padding: 12px 14px; border-radius: 14px; background: var(--tint); font-size: 14px; line-height: 1.4; }
 .notice-error { background: var(--danger-tint); color: #7f1d1d; }
