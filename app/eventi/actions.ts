@@ -195,11 +195,31 @@ export async function addComment(prev: CommentState, formData: FormData): Promis
   if (body.length > 1000) return { ...prev, error: "Komentar može da ima najviše 1000 znakova." };
 
   const { error } = await supabase.from("comments").insert({ event_id: eventId, member_id: member.id, body });
-  if (error) return { ...prev, error: "Slanje nije uspelo. Ako je event otkazan, komentari su zaključani." };
+  if (error) {
+    return { ...prev, error: "Slanje nije uspelo. Komentarišu samo oni koji su kliknuli Dolazim ili Možda, a na otkazanom eventu su komentari zaključani." };
+  }
 
   pushLater();
   revalidatePath(`/eventi/${eventId}`);
   return { error: null, sent: prev.sent + 1 };
+}
+
+export type EditCommentState = { error: string | null; saved: number };
+
+export async function editComment(prev: EditCommentState, formData: FormData): Promise<EditCommentState> {
+  const { supabase } = await requireMember();
+  const id = String(formData.get("id"));
+  const eventId = String(formData.get("event_id"));
+  const body = clean(formData.get("body"));
+
+  if (!body) return { ...prev, error: "Komentar je prazan." };
+  if (body.length > 1000) return { ...prev, error: "Komentar može da ima najviše 1000 znakova." };
+
+  const { error } = await supabase.rpc("edit_comment", { p_id: id, p_body: body });
+  if (error) return { ...prev, error: "Izmena nije uspela. Ako je event otkazan, komentari su zaključani." };
+
+  revalidatePath(`/eventi/${eventId}`);
+  return { error: null, saved: prev.saved + 1 };
 }
 
 export async function deleteComment(formData: FormData) {

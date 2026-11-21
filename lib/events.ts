@@ -83,7 +83,8 @@ export type CommentRow = {
   member_id: string;
   body: string;
   created_at: string;
+  edited_at: string | null;
   member: Pick<Member, "first_name" | "last_name"> | null;
 };
 
-export const COMMENT_SELECT = "id, event_id, member_id, body, created_at, member:members(first_name, last_name)";
+export const COMMENT_SELECT = "id, event_id, member_id, body, created_at, edited_at, member:members(first_name, last_name)";

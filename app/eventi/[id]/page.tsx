@@ -265,7 +265,7 @@ export default async function EventPage({
 
       <Attendees going={going} maybe={maybe} waitlist={waitlist} meId={member.id} past={past} />
 
-      <Comments eventId={event.id} comments={commentData ?? []} me={member} locked={cancelled} />
+      <Comments eventId={event.id} comments={commentData ?? []} me={member} locked={cancelled} signedUp={mine !== null} past={past} />
     </main>
   );
 }

@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-// Sluša bazu (Supabase Realtime): kad neko doda ili obriše komentar, stranica se sama osveži
+// Sluša bazu (Supabase Realtime): kad neko doda, izmeni ili obriše komentar, stranica se sama osveži
 export function CommentsLive({ eventId, commentIds }: { eventId: string; commentIds: string[] }) {
   const router = useRouter();
   const ids = useRef(commentIds);
@@ -19,6 +19,11 @@ export function CommentsLive({ eventId, commentIds }: { eventId: string; comment
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "comments", filter: `event_id=eq.${eventId}` },
+        () => router.refresh(),
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "comments", filter: `event_id=eq.${eventId}` },
         () => router.refresh(),
       )
       // Kod brisanja baza javlja samo id komentara, pa proveravamo da li je bio na ovoj stranici
