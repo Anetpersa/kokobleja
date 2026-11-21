@@ -6,6 +6,7 @@ export const CATEGORIES = [
   { key: "svirka", label: "Svirka" },
   { key: "izlazak", label: "Izlazak" },
   { key: "proslava", label: "Proslava" },
+  { key: "bleja", label: "Bleja" },
   { key: "ostalo", label: "Ostalo" },
 ] as const;
 

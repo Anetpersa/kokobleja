@@ -234,6 +234,7 @@ input:disabled { background: #f5ede6; color: var(--muted); }
 .cat-svirka     { background: #dbeafe; color: #1e40af; }
 .cat-izlazak    { background: #fef3c7; color: #92400e; }
 .cat-proslava   { background: #fce7f3; color: #9d174d; }
+.cat-bleja      { background: #dcfce7; color: #166534; }
 .cat-ostalo     { background: #f5ede6; color: #6b4f3f; }
 .hero-cancelled .hero-badge { filter: grayscale(1); }
 
