@@ -104,12 +104,12 @@ input:focus, select:focus { outline: 2px solid var(--primary); outline-offset: 1
 .logo span { font-family: var(--font-display), system-ui, sans-serif; font-size: 26px; font-weight: 800; color: var(--primary-dark); }
 
 /* ---------- Korak 2: eventi ---------- */
-textarea, input[type="datetime-local"], input[type="number"] {
+textarea, input[type="number"] {
   border-radius: 14px; border: 1px solid var(--border-strong);
   background: var(--surface); padding: 12px 14px; font: inherit; font-size: 16px; color: var(--ink);
   width: 100%;
 }
-input[type="datetime-local"], input[type="number"] { height: 48px; padding: 0 14px; }
+input[type="number"] { height: 48px; padding: 0 14px; }
 textarea { resize: vertical; line-height: 1.4; }
 
 /* Sva četiri filtera staju u jedan red i dele širinu; scroll ostaje samo kao rezerva za baš uske ekrane */
@@ -341,3 +341,56 @@ input:disabled { background: #f5ede6; color: var(--muted); }
 .audience-option:has(input:checked) { border-color: var(--primary); background: var(--tint); }
 .audience-option input { margin-top: 4px; accent-color: var(--primary); width: 18px; height: 18px; flex: none; }
 .audience-option:has(input:disabled) { opacity: .55; cursor: default; }
+
+/* Datum i vreme: sopstveni kalendar i sat */
+.dt-row { position: relative; display: grid; grid-template-columns: 1.5fr 1fr; gap: 10px; }
+.dt-btn {
+  display: flex; align-items: center; gap: 8px; height: 48px; padding: 0 14px; width: 100%;
+  border-radius: 14px; border: 1px solid var(--border-strong); background: var(--surface);
+  font: inherit; font-size: 16px; color: var(--ink); cursor: pointer; text-align: left; white-space: nowrap; overflow: hidden;
+}
+.dt-btn svg { color: var(--primary); flex: none; }
+.dt-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 1px; }
+.dt-placeholder { color: var(--muted); }
+.dt-hidden { position: absolute; left: 20px; bottom: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+
+dialog.picker {
+  border: none; border-radius: 24px; padding: 20px; width: min(320px, calc(100vw - 32px));
+  background: var(--surface); color: var(--ink);
+}
+dialog.picker::backdrop { background: rgba(43, 27, 18, .45); }
+.picker-title { font-size: 15px; font-weight: 800; margin-bottom: 6px; }
+.picker-big { font-family: var(--font-display), system-ui, sans-serif; font-size: 28px; font-weight: 800; color: var(--primary); margin-bottom: 10px; }
+.picker-actions { display: flex; justify-content: flex-end; gap: 4px; margin-top: 12px; }
+.picker-actions button {
+  background: none; border: none; color: var(--primary); font: inherit; font-size: 15px; font-weight: 800;
+  padding: 8px 12px; border-radius: 10px; cursor: pointer;
+}
+.picker-actions button:hover { background: var(--tint); }
+
+.cal-nav { display: flex; align-items: center; justify-content: space-between; font-weight: 800; margin-bottom: 6px; }
+.cal-arrow {
+  width: 36px; height: 36px; border-radius: 18px; border: none; background: var(--tint); color: var(--primary);
+  font-size: 22px; line-height: 1; cursor: pointer;
+}
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
+.cal-grid b { font-size: 12px; font-weight: 800; color: var(--primary-dark); padding: 4px 0; }
+.cal-day {
+  height: 38px; border-radius: 19px; border: none; background: none; font: inherit; font-size: 15px;
+  color: var(--ink); cursor: pointer;
+}
+.cal-day.today { box-shadow: inset 0 0 0 1.5px var(--primary); }
+.cal-day.on { background: var(--primary); color: #fff; font-weight: 800; }
+.cal-day:disabled { color: #d6b8a3; cursor: default; background: none; }
+@media (hover: hover) { .cal-day:not(:disabled):not(.on):hover { background: var(--tint); } }
+
+.clock-head { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 14px; }
+.clock-head span { font-size: 40px; color: var(--primary-dark); font-weight: 800; }
+.clock-head button {
+  font-family: var(--font-display), system-ui, sans-serif; font-size: 44px; line-height: 1; font-weight: 800;
+  padding: 10px 14px 6px; border-radius: 14px; border: none; background: var(--tint); color: var(--primary-dark); cursor: pointer;
+}
+.clock-head button.on { background: var(--primary); color: #fff; }
+.clock-face { display: block; width: 100%; max-width: 260px; margin: 0 auto; touch-action: none; cursor: pointer; user-select: none; }
+.clock-num { font-size: 15px; font-weight: 700; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.clock-inner { font-size: 12px; }

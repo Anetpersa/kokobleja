@@ -1,3 +1,4 @@
+import { DateTimeField } from "@/components/DateTimeField";
 import { LocationField } from "@/components/LocationField";
 import { CATEGORIES, type EventRow } from "@/lib/events";
 import { dateToBelgradeInput } from "@/lib/time";
@@ -34,15 +35,7 @@ export function EventForm({
         </div>
       </fieldset>
 
-      <label className="field">
-        Datum i vreme
-        <input
-          type="datetime-local"
-          name="starts_at"
-          defaultValue={event ? dateToBelgradeInput(event.starts_at) : undefined}
-          required
-        />
-      </label>
+      <DateTimeField defaultValue={event ? dateToBelgradeInput(event.starts_at) : undefined} />
 
       <LocationField defaultValue={event ? event.location : undefined} />
 
